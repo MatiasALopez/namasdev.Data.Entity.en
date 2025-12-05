@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package >
+  <metadata>
+    <id>namasdev.Data.Entity.en</id>
+    <version>1.0.0</version>
+    <title>namasdev Data Entity (EN)</title>
+    <authors>Matias Alberto Lopez</authors>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">MIT</license>
+    <!-- <icon>icon.png</icon> -->
+    <projectUrl>https://github.com/MatiasALopez/namasdev.Data.Entity.en</projectUrl>
+    <description>namasdev Data Entity library (English)</description>
+    <releaseNotes></releaseNotes>
+    <copyright>2024</copyright>
+    <tags>namasdev</tags>
+    <dependencies>
+      <dependency id="namasdev.Core.en" version="1.0.0" />
+      <dependency id="namasdev.Data.en" version="1.0.0" />
+    </dependencies>
+  </metadata>
+</package>
