@@ -52,7 +52,7 @@ namespace namasdev.Data.Entity
             DbContextHelper<TDbContext>.UpdateProperties(entity, properties);
         }
 
-        public virtual void UpdateDeletedFields(TEntity entity)
+        public virtual void UpdateDeletedProperties(TEntity entity)
         {
             var e = entity as IEntityDeleted;
             if (e == null)
@@ -65,7 +65,7 @@ namespace namasdev.Data.Entity
                 nameof(e.DeletedAt));
         }
 
-        public virtual void UpdateDeletedFields(IEnumerable<TEntity> entities, 
+        public virtual void UpdateDeletedProperties(IEnumerable<TEntity> entities, 
             int batchSize = BATCH_SIZE_DEFAULT)
         {
             if (typeof(TEntity) is IEntityDeleted)
