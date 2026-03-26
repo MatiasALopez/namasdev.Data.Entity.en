@@ -14,11 +14,16 @@ namespace namasdev.Data.Entity
         where TEntity : class, IEntity<TId>, new()
         where TId : IEquatable<TId>
     {
-        private readonly bool _entityImplementsDeleted;
+        private static readonly Expression<Func<TEntity, bool>> _notDeletedPredicate =
+            ReflectionHelper.ClassImplementsInterface<TEntity, IEntityDeleted>()
+            ? BuildNotDeletedPredicate()
+            : null;
 
-        public ReadOnlyRepository()
+        private static Expression<Func<TEntity, bool>> BuildNotDeletedPredicate()
         {
-            _entityImplementsDeleted = ReflectionHelper.ClassImplementsInterface<TEntity, IEntityDeleted>(); 
+            var param = Expression.Parameter(typeof(TEntity), "e");
+            var notDeleted = Expression.Not(Expression.Property(param, nameof(IEntityDeleted.Deleted)));
+            return Expression.Lambda<Func<TEntity, bool>>(notDeleted, param);
         }
 
         public TEntity Get(TId id)
@@ -170,14 +175,10 @@ namespace namasdev.Data.Entity
 
         private IQueryable<TEntity> FilterDeleted(IQueryable<TEntity> query, bool includeDeleted)
         {
-            if (!_entityImplementsDeleted || includeDeleted)
-            {
-                return query;
-            }
-
-            return ((IQueryable<IEntityDeleted>)query)
-                .Where(e => !e.Deleted)
-                .Cast<TEntity>();
+            return
+                _notDeletedPredicate == null || includeDeleted
+                ? query
+                : query.Where(_notDeletedPredicate);
         }
     }
 }
