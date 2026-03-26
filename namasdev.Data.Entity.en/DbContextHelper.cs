@@ -191,7 +191,7 @@ namespace namasdev.Data.Entity
             var properties = new List<string>();
 
             if (excludeCreatedProperties
-                && typeof(T).IsAssignableFrom(typeof(IEntityCreated)))
+                && typeof(IEntityCreated).IsAssignableFrom(typeof(T)))
             {
                 properties.AddRange(new[]
                 {
@@ -200,7 +200,7 @@ namespace namasdev.Data.Entity
                 });
             }
             if (excludeUpdatedProperties
-                && typeof(T).IsAssignableFrom(typeof(IEntityDeleted)))
+                && typeof(IEntityDeleted).IsAssignableFrom(typeof(T)))
             {
                 properties.AddRange(new[]
                 {
