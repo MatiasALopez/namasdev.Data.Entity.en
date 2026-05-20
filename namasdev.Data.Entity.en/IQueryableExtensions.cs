@@ -77,5 +77,10 @@ namespace namasdev.Data.Entity
                 ? IncludeMultiple(query, loadProperties)
                 : query;
         }
+
+        public static IQueryable<T> Apply<T>(this IQueryable<T> query, Func<IQueryable<T>, IQueryable<T>> transform)
+        {
+            return transform(query);
+        }
     }
 }

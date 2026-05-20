@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading;
+using System.Threading.Tasks;
 
 using namasdev.Core.Entity;
 using namasdev.Core.Linq;
@@ -39,19 +42,42 @@ namespace namasdev.Data.Entity
                 includeDeleted: includeDeleted);
         }
 
+        public Task<TEntity> GetAsync(TId id,
+            bool includeDeleted = false,
+            CancellationToken ct = default)
+        {
+            return GetAsync(id,
+                loadProperties: (IEnumerable<string>)null,
+                includeDeleted: includeDeleted,
+                ct: ct);
+        }
+
         public TEntity Get(TId id,
             IEnumerable<string> loadProperties,
             bool includeDeleted = false)
         {
             using (var ctx = new TDbContext())
             {
-                var query = ctx.Set<TEntity>()
+                return ctx.Set<TEntity>()
                     .IncludeMultiple(loadProperties)
-                    .Where(e => e.Id.Equals(id));
+                    .Where(e => e.Id.Equals(id))
+                    .Apply(query => FilterDeleted(query, includeDeleted))
+                    .FirstOrDefault();
+            }
+        }
 
-                query = FilterDeleted(query, includeDeleted);
-
-                return query.FirstOrDefault();
+        public async Task<TEntity> GetAsync(TId id,
+            IEnumerable<string> loadProperties,
+            bool includeDeleted = false,
+            CancellationToken ct = default)
+        {
+            using (var ctx = new TDbContext())
+            {
+                return await ctx.Set<TEntity>()
+                    .IncludeMultiple(loadProperties)
+                    .Where(e => e.Id.Equals(id))
+                    .Apply(query => FilterDeleted(query, includeDeleted))
+                    .FirstOrDefaultAsync(ct);
             }
         }
 
@@ -61,13 +87,26 @@ namespace namasdev.Data.Entity
         {
             using (var ctx = new TDbContext())
             {
-                var query = ctx.Set<TEntity>()
+                return ctx.Set<TEntity>()
                     .IncludeMultiple(loadProperties)
-                    .Where(e => e.Id.Equals(id));
+                    .Where(e => e.Id.Equals(id))
+                    .Apply(query => FilterDeleted(query, includeDeleted))
+                    .FirstOrDefault();
+            }
+        }
 
-                query = FilterDeleted(query, includeDeleted);
-
-                return query.FirstOrDefault();
+        public async Task<TEntity> GetAsync(TId id,
+            IEnumerable<Expression<Func<TEntity, object>>> loadProperties,
+            bool includeDeleted = false,
+            CancellationToken ct = default)
+        {
+            using (var ctx = new TDbContext())
+            {
+                return await ctx.Set<TEntity>()
+                    .IncludeMultiple(loadProperties)
+                    .Where(e => e.Id.Equals(id))
+                    .Apply(query => FilterDeleted(query, includeDeleted))
+                    .FirstOrDefaultAsync(ct);
             }
         }
 
@@ -77,13 +116,26 @@ namespace namasdev.Data.Entity
         {
             using (var ctx = new TDbContext())
             {
-                var query = ctx.Set<TEntity>()
+                return ctx.Set<TEntity>()
                     .IncludeMultiple(loadProperties)
-                    .Where(e => e.Id.Equals(id));
+                    .Where(e => e.Id.Equals(id))
+                    .Apply(query => FilterDeleted(query, includeDeleted))
+                    .FirstOrDefault();
+            }
+        }
 
-                query = FilterDeleted(query, includeDeleted);
-
-                return query.FirstOrDefault();
+        public async Task<TEntity> GetAsync(TId id,
+            ILoadProperties<TEntity> loadProperties,
+            bool includeDeleted = false,
+            CancellationToken ct = default)
+        {
+            using (var ctx = new TDbContext())
+            {
+                return await ctx.Set<TEntity>()
+                    .IncludeMultiple(loadProperties)
+                    .Where(e => e.Id.Equals(id))
+                    .Apply(query => FilterDeleted(query, includeDeleted))
+                    .FirstOrDefaultAsync(ct);
             }
         }
 
@@ -105,6 +157,18 @@ namespace namasdev.Data.Entity
                 loadProperties: (IEnumerable<string>)null);
         }
 
+        public Task<IEnumerable<TEntity>> GetListAsync(
+            bool includeDeleted = false,
+            OrderAndPagingParameters op = null,
+            CancellationToken ct = default)
+        {
+            return GetListAsync(
+                loadProperties: (IEnumerable<string>)null,
+                includeDeleted: includeDeleted,
+                op: op,
+                ct: ct);
+        }
+
         public IEnumerable<TEntity> GetList(
             IEnumerable<string> loadProperties,
             bool includeDeleted = false,
@@ -112,14 +176,27 @@ namespace namasdev.Data.Entity
         {
             using (var ctx = new TDbContext())
             {
-                var query = ctx.Set<TEntity>()
-                    .IncludeMultiple(loadProperties);
-
-                query = FilterDeleted(query, includeDeleted);
-
-                return query
+                return ctx.Set<TEntity>()
+                    .IncludeMultiple(loadProperties)
+                    .Apply(query => FilterDeleted(query, includeDeleted))
                     .OrderAndPage(op)
                     .ToArray();
+            }
+        }
+
+        public async Task<IEnumerable<TEntity>> GetListAsync(
+            IEnumerable<string> loadProperties,
+            bool includeDeleted = false,
+            OrderAndPagingParameters op = null,
+            CancellationToken ct = default)
+        {
+            using (var ctx = new TDbContext())
+            {
+                return await ctx.Set<TEntity>()
+                    .IncludeMultiple(loadProperties)
+                    .Apply(query => FilterDeleted(query, includeDeleted))
+                    .OrderAndPage(op)
+                    .ToArrayAsync(ct);
             }
         }
 
@@ -130,14 +207,27 @@ namespace namasdev.Data.Entity
         {
             using (var ctx = new TDbContext())
             {
-                var query = ctx.Set<TEntity>()
-                    .IncludeMultiple(loadProperties);
-
-                query = FilterDeleted(query, includeDeleted);
-
-                return query
+                return ctx.Set<TEntity>()
+                    .IncludeMultiple(loadProperties)
+                    .Apply(query => FilterDeleted(query, includeDeleted))
                     .OrderAndPage(op)
                     .ToArray();
+            }
+        }
+
+        public async Task<IEnumerable<TEntity>> GetListAsync(
+            IEnumerable<Expression<Func<TEntity, object>>> loadProperties,
+            bool includeDeleted = false,
+            OrderAndPagingParameters op = null,
+            CancellationToken ct = default)
+        {
+            using (var ctx = new TDbContext())
+            {
+                return await ctx.Set<TEntity>()
+                    .IncludeMultiple(loadProperties)
+                    .Apply(query => FilterDeleted(query, includeDeleted))
+                    .OrderAndPage(op)
+                    .ToArrayAsync(ct);
             }
         }
 
@@ -148,14 +238,27 @@ namespace namasdev.Data.Entity
         {
             using (var ctx = new TDbContext())
             {
-                var query = ctx.Set<TEntity>()
-                    .IncludeMultiple(loadProperties);
-
-                query = FilterDeleted(query, includeDeleted);
-
-                return query
+                return ctx.Set<TEntity>()
+                    .IncludeMultiple(loadProperties)
+                    .Apply(query => FilterDeleted(query, includeDeleted))
                     .OrderAndPage(op)
                     .ToArray();
+            }
+        }
+
+        public async Task<IEnumerable<TEntity>> GetListAsync(
+            ILoadProperties<TEntity> loadProperties,
+            bool includeDeleted = false,
+            OrderAndPagingParameters op = null,
+            CancellationToken ct = default)
+        {
+            using (var ctx = new TDbContext())
+            {
+                return await ctx.Set<TEntity>()
+                    .IncludeMultiple(loadProperties)
+                    .Apply(query => FilterDeleted(query, includeDeleted))
+                    .OrderAndPage(op)
+                    .ToArrayAsync(ct);
             }
         }
 
@@ -164,12 +267,23 @@ namespace namasdev.Data.Entity
         {
             using (var ctx = new TDbContext())
             {
-                var query = ctx.Set<TEntity>()
-                    .Where(e => e.Id.Equals(id));
+                return ctx.Set<TEntity>()
+                    .Where(e => e.Id.Equals(id))
+                    .Apply(query => FilterDeleted(query, includeDeleted))
+                    .Any();
+            }
+        }
 
-                query = FilterDeleted(query, includeDeleted);
-
-                return query.Any();
+        public async Task<bool> ExistsByIdAsync(TId id,
+            bool includeDeleted = false,
+            CancellationToken ct = default)
+        {
+            using (var ctx = new TDbContext())
+            {
+                return await ctx.Set<TEntity>()
+                    .Where(e => e.Id.Equals(id))
+                    .Apply(query => FilterDeleted(query, includeDeleted))
+                    .AnyAsync(ct);
             }
         }
 
